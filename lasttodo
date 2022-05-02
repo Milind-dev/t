@@ -1,0 +1,342 @@
+//--------------------all function ------------------------------------- 
+let arr =[]
+var date = new Date();
+var exactTime =
+  date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+
+function getTododata() {
+  let todo = JSON.parse(localStorage.getItem("todoData"));
+  return todo;
+}
+
+function saveTodo(data) {
+  localStorage.setItem("todoData", JSON.stringify(data)) || [];
+}
+
+function createid() {
+  return Math.random();
+}
+
+// ---------search saves ------------------------------------------------
+
+function getsearchTodos() {
+  let searchSave = JSON.parse(localStorage.getItem("searchTodo"));
+  return searchSave;
+}
+function searchSave(data) {
+   localStorage.setItem("searchDatas",JSON.stringify(data))
+}
+
+/*----------------------------------------display List ------------------*/
+function displayList(data) {
+  let html = "";
+  // let todoData = getTododata();
+  // let pages = JSON.parse(todoData);
+  let pages  = data;
+  if (pages !== null) {
+    pages.forEach((element) => {
+      const { randomNum, title } = element;
+      let rnd = Number(randomNum);
+      
+      html += `
+              <div class="todoEdit">
+                  <p> ${element["title"]}  ${exactTime} </p>
+              </div> 
+              <div class="todoEdit">
+                   <button onclick = "edits(${rnd})">Edit</button>
+                   <button onclick = "deletes(${rnd})">delete</button>
+              </div>
+          
+              `;
+    });
+  }
+  todoResults.innerHTML = html;
+  console.log(todoResults)
+}
+/*---------------------------------------- adding ------------------*/
+function adding() {
+  var arr = [];
+  let tododata = getTododata();
+  let title = document.getElementById("addinginput").value;
+  let nowDate = new Date();
+
+  let item = {
+    randomNum: createid(),
+    title: title,
+    exactTime: exactTime,
+    nowDate: nowDate,
+  };
+
+  if (title == "") {
+    alert("fill something");
+  } else {
+    if (tododata === null) {
+      arr.push(item);
+      saveTodo(arr);
+      displayList(arr)
+    } else {
+      // JSON.parse(tododata).map((todo) => {
+        // });
+        // arr.push(todo);
+      
+      tododata.push(item);
+      saveTodo(tododata);
+      displayList(tododata);
+    }
+  }
+}
+
+/* ------------------- serchings ---------------------------------------------*/
+
+let editdisplay = document.getElementById("editdisplay");
+let todoResults = document.getElementById("todoResults");
+  
+function searchTodo() {
+  html = ""
+  let todoEdit = document.querySelectorAll(".todoEdit")[0];
+  let searchTitle = document.getElementById("searchName").value;
+  //get all todo
+  let todo = getTododata();
+  let searchfiltertodo = todo;
+  
+  //find items ------------ logic
+  // []
+  searchfiltertodo
+  .filter((val) => {  
+    //  editdisplay.innerHTML = "errord"
+     editdisplay.style.display = "hidden" 
+     todoResults.style.display="block" 
+
+    return ((val.title).includes(searchTitle));
+  })
+  .map((x) => {
+    if (x != " " ) {
+      console.log(x);
+      html += x.title  + " "
+      editdisplay.style.visibility = "visible"
+      todoEdit.style.display = "block"
+      todoResults.style.display="none"
+    }   
+    else{
+      editdisplay.style.visibility = "hidden";
+    }
+    return x;
+  });
+  searchSave(todo)
+  editdisplay.innerHTML = html;
+  displayList(searchfiltertodo);
+}
+
+
+
+// --------------------------------------- edit todo ------------------------
+
+const saveTaskButton = document.getElementById("saveEdit");
+const saveInd = document.getElementById("currval");
+const addTaskButton = document.getElementById("addingData");
+let todoAdd = document.getElementById("addinginput");
+function edits(rnd) {
+  let todo = getTododata();
+  // saveInd.value = i; 
+  arr = todo;
+  arr.forEach(element => {
+      saveInd.value = element.title
+      todoAdd.value = element.title;
+    return;
+    });
+  
+  
+  addTaskButton.style.display = "none";
+  saveTaskButton.style.display = "block";
+  
+  
+  saveTaskButton.addEventListener("click", () => {
+    // let todo = getTododata();
+    arr = todo;
+    arr.forEach(element => {
+      if(element.randomNum == rnd){
+        element["title"] = todoAdd.value;
+      }
+      // console.log(element["title"])
+    })
+    addTaskButton.style.display = "block"; 
+    saveTaskButton.style.display = "none";
+
+    saveTodo(arr)
+    todoAdd.value = "";
+    displayList(arr);
+  })
+}
+  
+/*-------------------------   delete -----------*/
+
+function deletes(rnd) {
+  let todoData = getTododata();
+  let dataItem = todoData;
+  let item = dataItem.filter((element) => element.randomNum != rnd);
+   saveTodo(item)
+    displayList(dataItem);
+}
+
+document.getElementById("addingData").addEventListener("click", adding);
+
+
+/* --------------- end task todo -----------------------------*/
+
+
+
+
+
+
+
+
+
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="content-type" content="text/html" charset="UTF-8" />
+    <meta name="keyword" content="html,css,javascript" />
+    <meta name="description" content="TodoList Files" />
+    <meta name="author"  content="Milind" />
+    <!-- older version of internet explorer , not removed -->
+    <!-- <meta http-equiv="X-UA-Compatible" content="IE=edge"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./assests/style/style.css"/>
+    <title>Todo List</title>
+</head>
+<body>
+    <div id="todoContainer">
+        <!-- dates fixed -->
+        <div class="todoUi">
+            
+            <input type="search" id="searchName" onkeyup="searchTodo()" value="" placeholder="Search by title .." title="search by title" />
+            <!-- <input type="search" id="searchName"  placeholder="Search by title .." title="search by title" /> -->
+            <div id="editdisplay"> 
+            </div>
+            <div class="dateToday">
+                <div class="dateDay">
+                    <div>
+                        <p id="currentDay">27</p>
+                    </div>
+                    <div>
+                        <p>Apr</p>
+                        <p>2020</p>
+                    </div>
+                </div>
+                <div class="dateToday">
+                    <p>Tuesday</p>
+                </div>
+            </div>
+        <!-- end ui dates fixed -->
+        
+        <!-- inputs -->
+        <div class="todoInputs">
+            <input type="text" id="addinginput" placeholder="buy new carts"  />
+            <button  id="addingData"> Add task</button>
+            
+            <input type="hidden" id="currval" placeholder="todo edit" />
+            <button  style="display: none" id="saveEdit">Edit todo</button>
+        </div>
+
+        
+        <div id="todoResults">
+        </div>
+        
+    </div>
+    <!-- end todo ui -->
+    <script src="./assests/js/scripts.js"></script>
+    </div>
+</body>
+</html>
+
+
+
+*{
+    margin: 1px;
+    padding: 1px;
+    font-family: sans-serif;
+}
+
+#todoContainer{
+      background-color: #F0EFE9;
+    }
+
+    .todoUi{
+    box-shadow: 1vh 1vh 1vh;
+    background-color: #FFFFFF;
+    height: 82vh;
+    width: 47vh; 
+    margin-left: 82vh;
+    margin-top: 4vh;
+    border-radius: 1vh;
+    padding-left: 1vh;
+}
+#searchName{
+    width: 22vw;
+    margin-top: 2vh;
+    border: 2px solid grey;
+    border-radius: 5vh;
+    padding: 1vh;
+}
+.dateToday{
+    display: flex;
+    justify-content: space-between;
+    color:#686B79
+}
+.dateDay{
+    display: flex;
+    justify-content: space-between;
+}
+
+.dateDay > div >  #currentDay{
+    font-size: 6vh;
+}   
+
+/* 4mm used */
+.todoInputs > #addinginput{
+    margin-top: 6vh;
+    color: #050505;
+    border-bottom:thick single black; 
+    border-left: 1px solid transparent;
+    border-right: 1px solid transparent;
+    border-top: 1px solid transparent;
+    outline:none;
+    font-size: 2.4vh;
+}
+.todoInputs > #addingData{
+    background-color:#64E4A5;
+    outline: none;
+    border: none;
+    padding: 1vh;
+    color:#686B79;
+    font-weight: bold;
+}
+
+#todoResults{
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    margin-top: 3vh;
+}
+/* .todoEdit:nth-child(2){
+    display: ;
+} */
+
+#todoResults > .todoEdit p{
+    color: #686B79;
+}
+#todoResults > .todoEdit button{
+    background-color:#686B79;
+    outline: none;
+    border: none;
+    padding: 1vh;
+    color:#FFFFFF;
+    font-weight: bold;
+}
+
+
+#editdisplay{
+    color: #050505;
+    font-weight: bold;
+}
